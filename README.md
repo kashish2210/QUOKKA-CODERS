@@ -1,4 +1,4 @@
-# JalRaksha - AI-Driven Water Conservation Platform
+<img width="1912" height="556" alt="image" src="https://github.com/user-attachments/assets/76b8b941-6105-4ecc-8956-b2a67afa3354" /># JalRaksha - AI-Driven Water Conservation Platform
 
 Django-based water management system with IoT sensor monitoring and AI-powered leak detection.
 
@@ -389,6 +389,11 @@ Add sensors through admin panel before running simulation.
 ### ADD NEW SENSORS
 <img width="1897" height="858" alt="image" src="https://github.com/user-attachments/assets/7f1e7c41-2bcc-4c01-ba7b-cd43d5f1fcab" />
 <img width="1912" height="885" alt="image" src="https://github.com/user-attachments/assets/37390f0c-5192-429d-8c4e-840c01b853cd" />
+### our terminal {new feature}
+<img width="1908" height="898" alt="image" src="https://github.com/user-attachments/assets/cb15feb4-1364-459d-96a7-9520b94cb051" />
+<img width="1912" height="556" alt="image" src="https://github.com/user-attachments/assets/8e9d0d20-41aa-405c-99ba-b1a3bf0a252a" />
+<img width="1908" height="543" alt="image" src="https://github.com/user-attachments/assets/492a5e63-709b-4d8b-bec6-69110221f921" />
+<img width="1907" height="375" alt="image" src="https://github.com/user-attachments/assets/efb92881-8010-46e8-a159-7e6224dc1895" />
 ## Team
 
 Quokka Coders - NavonMesh Hackathon
