@@ -372,7 +372,23 @@ Add sensors through admin panel before running simulation.
 3. Monitor analytics dashboard for leak detection
 4. Check alerts for notifications
 5. Future: Integrate real ESP32/IoT hardware
-
+## screenshots
+### dummy sensor simulator command:
+<img width="796" height="200" alt="image" src="https://github.com/user-attachments/assets/08af0038-4fbd-46db-ad3d-26d2dcba49f9" />
+### SENSOR DASHBOARD:
+<img width="1894" height="921" alt="image" src="https://github.com/user-attachments/assets/1b5e0ac4-3f8e-4053-8952-a6e8585138fc" />
+<img width="1897" height="835" alt="image" src="https://github.com/user-attachments/assets/81cf5e6e-7c62-4de1-bdb5-ea96d5e2a889" />
+### ANALYTICS DASHBOARD:
+<img width="1889" height="882" alt="image" src="https://github.com/user-attachments/assets/1251634d-1019-4b4d-aa81-d8e6c6a8eb04" />
+<img width="1885" height="877" alt="image" src="https://github.com/user-attachments/assets/a5a90cef-ba78-4ae9-8913-11a8b060a568" />
+<img width="1900" height="875" alt="image" src="https://github.com/user-attachments/assets/cea239f6-44ae-4e91-9a99-bd6b0c8cec64" />
+<img width="1827" height="804" alt="image" src="https://github.com/user-attachments/assets/a78e5205-7ee6-4e87-b3e2-2f2cd9069c5e" />
+<img width="1894" height="873" alt="image" src="https://github.com/user-attachments/assets/90abb782-4cb6-4b23-8a76-8755ad3d9980" />
+### ALERTS
+<img width="1895" height="904" alt="image" src="https://github.com/user-attachments/assets/44321d06-4526-4734-b2e4-8c5afe04874c" />
+### ADD NEW SENSORS
+<img width="1897" height="858" alt="image" src="https://github.com/user-attachments/assets/7f1e7c41-2bcc-4c01-ba7b-cd43d5f1fcab" />
+<img width="1912" height="885" alt="image" src="https://github.com/user-attachments/assets/37390f0c-5192-429d-8c4e-840c01b853cd" />
 ## Team
 
 Quokka Coders - NavonMesh Hackathon
@@ -380,3 +396,5 @@ Quokka Coders - NavonMesh Hackathon
 ## License
 
 Educational Project for Water Management
+
+## for future implementation with ESP32 visit [here](https://github.com/kashish2210/QUOKKA-CODERS/blob/main/blueprint_esp32.md)
