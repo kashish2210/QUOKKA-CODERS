@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Leak Detections - JalRaksha{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>All Leak Detections</h2>
+</div>
+
+<div class="filters">
+    <button class="filter-btn active" onclick="filterLeaks('all')">All</button>
+    <button class="filter-btn" onclick="filterLeaks('DETECTED')">Detected</button>
+    <button class="filter-btn" onclick="filterLeaks('INVESTIGATING')">Investigating</button>
+    <button class="filter-btn" onclick="filterLeaks('CONFIRMED')">Confirmed</button>
+    <button class="filter-btn" onclick="filterLeaks('REPAIRED')">Repaired</button>
+</div>
+
+<div class="table-container">
+    <table class="data-table" id="leaksTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Sensor ID</th>
+                <th>Location</th>
+                <th>Detected At</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Loss Rate (L/hr)</th>
+                <th>Confidence</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for leak in leaks %}
+            <tr data-status="{{ leak.status }}">
+                <td><strong>#{{ leak.id }}</strong></td>
+                <td>{{ leak.sensor.device_id }}</td>
+                <td>{{ leak.sensor.location }}</td>
+                <td>{{ leak.detected_at|date:"d M Y, H:i" }}</td>
+                <td><span class="badge badge-{{ leak.severity|lower }}">{{ leak.severity }}</span></td>
+                <td><span class="status-{{ leak.status|lower }}">{{ leak.get_status_display }}</span></td>
+                <td>{{ leak.estimated_loss_rate|floatformat:1 }}</td>
+                <td>{{ leak.confidence_score|floatformat:2 }}</td>
+                <td>{{ leak.notes|truncatewords:10|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center">No leaks detected.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterLeaks(status) {
+    const rows = document.querySelectorAll('#leaksTable tbody tr');
+    const buttons = document.querySelectorAll('.filter-btn');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    rows.forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

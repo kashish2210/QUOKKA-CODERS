@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ sensor.device_id }} - JalRaksha{% endblock %}
+
+{% block content %}
+<div class="sensor-detail">
+    <div class="breadcrumb">
+        <a href="{% url 'sensors:dashboard' %}">Dashboard</a> / 
+        <a href="{% url 'sensors:sensor_list' %}">Sensors</a> / 
+        <strong>{{ sensor.device_id }}</strong>
+    </div>
+    
+    <div class="detail-header">
+        <div>
+            <h2>{{ sensor.device_id }}</h2>
+            <p class="text-muted">{{ sensor.location }}</p>
+        </div>
+        <div>
+            {% if sensor.is_active %}
+                <span class="badge badge-success">Active</span>
+            {% else %}
+                <span class="badge badge-danger">Inactive</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="info-grid">
+        <div class="info-card">
+            <h4>Sensor Information</h4>
+            <table class="info-table">
+                <tr>
+                    <td><strong>Device ID:</strong></td>
+                    <td>{{ sensor.device_id }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Type:</strong></td>
+                    <td>{{ sensor.get_sensor_type_display }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Deployment:</strong></td>
+                    <td>{{ sensor.get_deployment_type_display }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Location:</strong></td>
+                    <td>{{ sensor.location }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Installed:</strong></td>
+                    <td>{{ sensor.installation_date|date:"d M Y, H:i" }}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="info-card">
+            <h4>24-Hour Statistics</h4>
+            <table class="info-table">
+                <tr>
+                    <td><strong>Total Readings:</strong></td>
+                    <td>{{ stats.total_readings }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Avg Flow Rate:</strong></td>
+                    <td>{{ stats.avg_flow|floatformat:2|default:"N/A" }} L/min</td>
+                </tr>
+                <tr>
+                    <td><strong>Max Flow Rate:</strong></td>
+                    <td>{{ stats.max_flow|floatformat:2|default:"N/A" }} L/min</td>
+                </tr>
+                <tr>
+                    <td><strong>Min Flow Rate:</strong></td>
+                    <td>{{ stats.min_flow|floatformat:2|default:"N/A" }} L/min</td>
+                </tr>
+                <tr>
+                    <td><strong>Avg Pressure:</strong></td>
+                    <td>{{ stats.avg_pressure|floatformat:2|default:"N/A" }} PSI</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h3>Recent Readings (Last 24 Hours)</h3>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Flow Rate (L/min)</th>
+                        <th>Pressure (PSI)</th>
+                        <th>Temperature (°C)</th>
+                        <th>Battery (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reading in readings %}
+                    <tr>
+                        <td>{{ reading.timestamp|date:"d M Y, H:i:s" }}</td>
+                        <td>{{ reading.flow_rate|floatformat:2 }}</td>
+                        <td>{{ reading.pressure|floatformat:2 }}</td>
+                        <td>{{ reading.temperature|floatformat:1 }}</td>
+                        <td>
+                            <span class="battery {% if reading.battery_level < 20 %}battery-low{% endif %}">
+                                {{ reading.battery_level }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No readings in the last 24 hours.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

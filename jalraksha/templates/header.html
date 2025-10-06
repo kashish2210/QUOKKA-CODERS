@@ -1,0 +1,20 @@
+<header class="header">
+    <div class="container header-content">
+        <div class="logo">
+            <h1>JalRaksha</h1>
+            <p class="tagline">AI-Driven Water Conservation</p>
+        </div>
+        <nav class="nav">
+            <a href="{% url 'sensors:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+            <a href="{% url 'sensors:sensor_list' %}" class="nav-link {% if request.resolver_match.url_name == 'sensor_list' %}active{% endif %}">Sensors</a>
+            <a href="{% url 'analytics:dashboard' %}" class="nav-link {% if 'analytics' in request.path %}active{% endif %}">Analytics</a>
+            <a href="{% url 'alerts:alerts_list' %}" class="nav-link {% if 'alerts' in request.path %}active{% endif %}">
+                Alerts
+                {% if unread_alerts_count %}
+                    <span class="badge">{{ unread_alerts_count }}</span>
+                {% endif %}
+            </a>
+            <a href="/admin/" class="nav-link">Admin</a>
+        </nav>
+    </div>
+</header>

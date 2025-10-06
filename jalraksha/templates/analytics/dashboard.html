@@ -1,0 +1,603 @@
+<!-- templates/analytics/advanced_dashboard.html -->
+{% extends 'base.html' %}
+
+{% block title %}Advanced Analytics - JalRaksha{% endblock %}
+
+{% block content %}
+<div class="advanced-analytics">
+    <h2>Advanced Water Analytics Dashboard</h2>
+    
+    <!-- Time Range Filter -->
+    <div class="filters-section">
+        <div class="filter-group">
+            <label>Time Range:</label>
+            <select id="timeRange" onchange="updateCharts()">
+                <option value="24h">Last 24 Hours</option>
+                <option value="7d" selected>Last 7 Days</option>
+                <option value="30d">Last 30 Days</option>
+                <option value="90d">Last 90 Days</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Sensor:</label>
+            <select id="sensorFilter" onchange="updateCharts()">
+                <option value="all">All Sensors</option>
+                {% for sensor in sensors %}
+                <option value="{{ sensor.device_id }}">{{ sensor.device_id }} - {{ sensor.location }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn btn-primary" onclick="exportReport()">Export Report (PDF)</button>
+        <button class="btn btn-secondary" onclick="updateCharts()">Refresh Data</button>
+    </div>
+
+    <!-- KPI Cards with Trends -->
+    <div class="kpi-section">
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-icon">💧</span>
+                <span class="kpi-title">Total Water Flow</span>
+            </div>
+            <div class="kpi-value" id="totalFlow">{{ total_flow|floatformat:0 }} L</div>
+            <div class="kpi-trend positive">
+                <span>↑ 12.5%</span>
+                <span class="kpi-subtext">vs last period</span>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-icon">🚨</span>
+                <span class="kpi-title">Water Loss</span>
+            </div>
+            <div class="kpi-value warning" id="totalLoss">{{ total_loss|floatformat:0 }} L</div>
+            <div class="kpi-trend negative">
+                <span>↓ 8.3%</span>
+                <span class="kpi-subtext">vs last period</span>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-icon">📊</span>
+                <span class="kpi-title">NRW Percentage</span>
+            </div>
+            <div class="kpi-value" id="nrwPercent">{{ nrw_percentage|floatformat:1 }}%</div>
+            <div class="kpi-trend negative">
+                <span>↓ 5.2%</span>
+                <span class="kpi-subtext">Target: 15%</span>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-icon">⚡</span>
+                <span class="kpi-title">Efficiency Score</span>
+            </div>
+            <div class="kpi-value success" id="efficiency">{{ efficiency_score|floatformat:0 }}%</div>
+            <div class="kpi-trend positive">
+                <span>↑ 3.7%</span>
+                <span class="kpi-subtext">Excellent</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Charts Row -->
+    <div class="charts-grid">
+        <!-- Flow Rate Time Series -->
+        <div class="chart-container full-width">
+            <div class="chart-header">
+                <h3>Flow Rate Analysis (L/min)</h3>
+                <div class="chart-controls">
+                    <button class="chart-btn active" data-chart="line">Line</button>
+                    <button class="chart-btn" data-chart="area">Area</button>
+                </div>
+            </div>
+            <canvas id="flowRateChart"></canvas>
+        </div>
+
+        <!-- Pressure Analysis -->
+        <div class="chart-container half-width">
+            <div class="chart-header">
+                <h3>Pressure Trends (PSI)</h3>
+            </div>
+            <canvas id="pressureChart"></canvas>
+        </div>
+
+        <!-- Consumption Pattern -->
+        <div class="chart-container half-width">
+            <div class="chart-header">
+                <h3>Hourly Consumption Pattern</h3>
+            </div>
+            <canvas id="consumptionPatternChart"></canvas>
+        </div>
+
+        <!-- Leak Detection Heatmap -->
+        <div class="chart-container half-width">
+            <div class="chart-header">
+                <h3>Leak Detection Heatmap</h3>
+            </div>
+            <canvas id="leakHeatmapChart"></canvas>
+        </div>
+
+        <!-- Sensor Status -->
+        <div class="chart-container half-width">
+            <div class="chart-header">
+                <h3>Sensor Health Status</h3>
+            </div>
+            <canvas id="sensorStatusChart"></canvas>
+        </div>
+
+        <!-- Water Loss Breakdown -->
+        <div class="chart-container half-width">
+            <div class="chart-header">
+                <h3>Water Loss Distribution</h3>
+            </div>
+            <canvas id="lossBreakdownChart"></canvas>
+        </div>
+
+        <!-- Comparative Analysis -->
+        <div class="chart-container half-width">
+            <div class="chart-header">
+                <h3>Sensor Comparison</h3>
+            </div>
+            <canvas id="sensorComparisonChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Predictive Analytics Section -->
+    <div class="prediction-section">
+        <h3>AI Predictions & Forecasting</h3>
+        <div class="prediction-grid">
+            <div class="prediction-card">
+                <h4>Next 7 Days Water Demand</h4>
+                <canvas id="demandForecastChart"></canvas>
+                <div class="prediction-info">
+                    <p><strong>Predicted Peak:</strong> Day 5 - 45,000 L</p>
+                    <p><strong>Confidence:</strong> 87%</p>
+                </div>
+            </div>
+
+            <div class="prediction-card">
+                <h4>Potential Leak Locations</h4>
+                <div class="leak-predictions">
+                    <div class="leak-pred-item high">
+                        <div class="pred-location">Main Road, Sector 5</div>
+                        <div class="pred-probability">
+                            <span class="prob-label">Risk:</span>
+                            <div class="prob-bar">
+                                <div class="prob-fill" style="width: 78%"></div>
+                            </div>
+                            <span class="prob-value">78%</span>
+                        </div>
+                    </div>
+                    <div class="leak-pred-item medium">
+                        <div class="pred-location">Zone 3, Water Plant</div>
+                        <div class="pred-probability">
+                            <span class="prob-label">Risk:</span>
+                            <div class="prob-bar">
+                                <div class="prob-fill" style="width: 45%"></div>
+                            </div>
+                            <span class="prob-value">45%</span>
+                        </div>
+                    </div>
+                    <div class="leak-pred-item low">
+                        <div class="pred-location">Residential Block A</div>
+                        <div class="pred-probability">
+                            <span class="prob-label">Risk:</span>
+                            <div class="prob-bar">
+                                <div class="prob-fill" style="width: 23%"></div>
+                            </div>
+                            <span class="prob-value">23%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prediction-card">
+                <h4>Anomaly Detection</h4>
+                <canvas id="anomalyChart"></canvas>
+                <div class="prediction-info">
+                    <p><strong>Anomalies Detected:</strong> 3 in last 24h</p>
+                    <p><strong>False Positive Rate:</strong> 5.2%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Statistics Table -->
+    <div class="stats-table-section">
+        <h3>Detailed Statistics by Sensor</h3>
+        <div class="table-container">
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Sensor ID</th>
+                        <th>Location</th>
+                        <th>Avg Flow (L/min)</th>
+                        <th>Peak Flow (L/min)</th>
+                        <th>Avg Pressure (PSI)</th>
+                        <th>Uptime</th>
+                        <th>Reliability</th>
+                        <th>Alerts</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sensor in sensor_stats %}
+                    <tr>
+                        <td><strong>{{ sensor.device_id }}</strong></td>
+                        <td>{{ sensor.location }}</td>
+                        <td>{{ sensor.avg_flow|floatformat:2 }}</td>
+                        <td>{{ sensor.peak_flow|floatformat:2 }}</td>
+                        <td>{{ sensor.avg_pressure|floatformat:2 }}</td>
+                        <td>{{ sensor.uptime|floatformat:1 }}%</td>
+                        <td>
+                            <div class="reliability-bar">
+                                <div class="reliability-fill" style="width: {{ sensor.reliability }}%"></div>
+                                <span>{{ sensor.reliability }}%</span>
+                            </div>
+                        </td>
+                        <td><span class="badge badge-warning">{{ sensor.alert_count }}</span></td>
+                        <td>
+                            {% if sensor.is_active %}
+                                <span class="status-badge active">Active</span>
+                            {% else %}
+                                <span class="status-badge inactive">Offline</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recommendations Section -->
+    <div class="recommendations-section">
+        <h3>AI Recommendations</h3>
+        <div class="recommendations-grid">
+            <div class="recommendation-card priority-high">
+                <div class="rec-header">
+                    <span class="rec-icon">⚠️</span>
+                    <span class="rec-priority">High Priority</span>
+                </div>
+                <h4>Immediate Attention Required</h4>
+                <p>SENSOR001 showing continuous low pressure for 6 hours. Possible major leak detected at Main Road, Sector 5.</p>
+                <div class="rec-actions">
+                    <button class="btn btn-sm btn-primary">Dispatch Team</button>
+                    <button class="btn btn-sm btn-secondary">View Details</button>
+                </div>
+            </div>
+
+            <div class="recommendation-card priority-medium">
+                <div class="rec-header">
+                    <span class="rec-icon">📊</span>
+                    <span class="rec-priority">Medium Priority</span>
+                </div>
+                <h4>Optimize Water Distribution</h4>
+                <p>Peak demand at Zone 3 can be reduced by 15% by adjusting pressure during off-peak hours.</p>
+                <div class="rec-actions">
+                    <button class="btn btn-sm btn-primary">Apply Settings</button>
+                    <button class="btn btn-sm btn-secondary">Simulate</button>
+                </div>
+            </div>
+
+            <div class="recommendation-card priority-low">
+                <div class="rec-header">
+                    <span class="rec-icon">🔧</span>
+                    <span class="rec-priority">Maintenance</span>
+                </div>
+                <h4>Scheduled Maintenance</h4>
+                <p>SENSOR002 battery at 25%. Schedule maintenance within next 48 hours to avoid data loss.</p>
+                <div class="rec-actions">
+                    <button class="btn btn-sm btn-primary">Schedule</button>
+                    <button class="btn btn-sm btn-secondary">Remind Later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+// Chart Data (Replace with actual data from Django views)
+const chartData = {
+    flowRateData: {{ flow_rate_data|safe }},
+    pressureData: {{ pressure_data|safe }},
+    consumptionData: {{ consumption_data|safe }},
+    leakData: {{ leak_data|safe }},
+    sensorStatusData: {{ sensor_status_data|safe }}
+};
+
+// Flow Rate Chart
+const flowCtx = document.getElementById('flowRateChart').getContext('2d');
+const flowRateChart = new Chart(flowCtx, {
+    type: 'line',
+    data: {
+        labels: chartData.flowRateData.labels,
+        datasets: [{
+            label: 'Flow Rate',
+            data: chartData.flowRateData.values,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Flow Rate (L/min)'
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Time'
+                }
+            }
+        }
+    }
+});
+
+// Pressure Chart
+const pressureCtx = document.getElementById('pressureChart').getContext('2d');
+const pressureChart = new Chart(pressureCtx, {
+    type: 'line',
+    data: {
+        labels: chartData.pressureData.labels,
+        datasets: [{
+            label: 'Pressure',
+            data: chartData.pressureData.values,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Pressure (PSI)'
+                }
+            }
+        }
+    }
+});
+
+// Consumption Pattern Chart
+const consumptionCtx = document.getElementById('consumptionPatternChart').getContext('2d');
+const consumptionChart = new Chart(consumptionCtx, {
+    type: 'bar',
+    data: {
+        labels: ['12AM', '3AM', '6AM', '9AM', '12PM', '3PM', '6PM', '9PM'],
+        datasets: [{
+            label: 'Consumption',
+            data: chartData.consumptionData.values,
+            backgroundColor: '#8b5cf6',
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Volume (Liters)'
+                }
+            }
+        }
+    }
+});
+
+// Leak Heatmap Chart
+const leakCtx = document.getElementById('leakHeatmapChart').getContext('2d');
+const leakChart = new Chart(leakCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+            label: 'Critical',
+            data: [2, 1, 0, 3, 1, 0, 1],
+            backgroundColor: '#ef4444'
+        }, {
+            label: 'High',
+            data: [3, 4, 2, 2, 3, 1, 2],
+            backgroundColor: '#f59e0b'
+        }, {
+            label: 'Medium',
+            data: [5, 3, 4, 4, 5, 3, 4],
+            backgroundColor: '#eab308'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true }
+        }
+    }
+});
+
+// Sensor Status Chart
+const statusCtx = document.getElementById('sensorStatusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Active', 'Warning', 'Offline'],
+        datasets: [{
+            data: [15, 3, 2],
+            backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Water Loss Breakdown
+const lossCtx = document.getElementById('lossBreakdownChart').getContext('2d');
+const lossChart = new Chart(lossCtx, {
+    type: 'pie',
+    data: {
+        labels: ['Leaks', 'Theft', 'Meter Error', 'Other'],
+        datasets: [{
+            data: [45, 25, 20, 10],
+            backgroundColor: ['#ef4444', '#f59e0b', '#eab308', '#94a3b8']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Sensor Comparison Chart
+const comparisonCtx = document.getElementById('sensorComparisonChart').getContext('2d');
+const comparisonChart = new Chart(comparisonCtx, {
+    type: 'radar',
+    data: {
+        labels: ['Flow Rate', 'Pressure', 'Reliability', 'Uptime', 'Efficiency'],
+        datasets: [{
+            label: 'SENSOR001',
+            data: [85, 78, 92, 95, 88],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.2)'
+        }, {
+            label: 'SENSOR002',
+            data: [92, 85, 88, 90, 85],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.2)'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+
+// Demand Forecast Chart
+const forecastCtx = document.getElementById('demandForecastChart').getContext('2d');
+const forecastChart = new Chart(forecastCtx, {
+    type: 'line',
+    data: {
+        labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+        datasets: [{
+            label: 'Predicted Demand',
+            data: [35000, 38000, 40000, 42000, 45000, 43000, 41000],
+            borderColor: '#8b5cf6',
+            borderDash: [5, 5],
+            fill: false
+        }, {
+            label: 'Historical Average',
+            data: [36000, 37000, 39000, 41000, 43000, 42000, 40000],
+            borderColor: '#6b7280',
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: false,
+                title: {
+                    display: true,
+                    text: 'Volume (Liters)'
+                }
+            }
+        }
+    }
+});
+
+// Anomaly Detection Chart
+const anomalyCtx = document.getElementById('anomalyChart').getContext('2d');
+const anomalyChart = new Chart(anomalyCtx, {
+    type: 'scatter',
+    data: {
+        datasets: [{
+            label: 'Normal',
+            data: [
+                {x: 10, y: 20}, {x: 15, y: 25}, {x: 20, y: 30},
+                {x: 25, y: 35}, {x: 30, y: 40}, {x: 35, y: 45}
+            ],
+            backgroundColor: '#10b981'
+        }, {
+            label: 'Anomaly',
+            data: [
+                {x: 12, y: 50}, {x: 28, y: 15}, {x: 32, y: 55}
+            ],
+            backgroundColor: '#ef4444',
+            pointRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: { title: { display: true, text: 'Flow Rate' } },
+            y: { title: { display: true, text: 'Pressure' } }
+        }
+    }
+});
+
+// Update Charts Function
+function updateCharts() {
+    const timeRange = document.getElementById('timeRange').value;
+    const sensor = document.getElementById('sensorFilter').value;
+    
+    console.log('Updating charts for:', timeRange, sensor);
+    // Add AJAX call to fetch new data from Django
+    // Then update all charts with new data
+}
+
+// Export Report Function
+function exportReport() {
+    alert('Generating PDF report... This feature requires backend implementation.');
+    // Implement PDF generation using Django + ReportLab
+}
+</script>
+{% endblock %}

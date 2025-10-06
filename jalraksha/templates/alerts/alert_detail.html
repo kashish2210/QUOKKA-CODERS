@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Alert #{{ alert.id }} - JalRaksha{% endblock %}
+
+{% block content %}
+<div class="alert-detail">
+    <div class="breadcrumb">
+        <a href="{% url 'sensors:dashboard' %}">Dashboard</a> / 
+        <a href="{% url 'alerts:alerts_list' %}">Alerts</a> / 
+        <strong>Alert #{{ alert.id }}</strong>
+    </div>
+    
+    <div class="detail-header">
+        <div>
+            <h2>{{ alert.get_alert_type_display }}</h2>
+            <p class="text-muted">Alert #{{ alert.id }}</p>
+        </div>
+        <div>
+            <span class="badge badge-{{ alert.priority|lower }}">{{ alert.priority }}</span>
+            {% if alert.is_resolved %}
+                <span class="badge badge-success">Resolved</span>
+            {% else %}
+                <span class="badge badge-warning">Active</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="info-grid">
+        <div class="info-card">
+            <h4>Alert Information</h4>
+            <table class="info-table">
+                <tr>
+                    <td><strong>Type:</strong></td>
+                    <td>{{ alert.get_alert_type_display }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Priority:</strong></td>
+                    <td>{{ alert.priority }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Created:</strong></td>
+                    <td>{{ alert.created_at|date:"d M Y, H:i:s" }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Status:</strong></td>
+                    <td>
+                        {% if alert.is_resolved %}
+                            Resolved
+                        {% else %}
+                            Active
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Read:</strong></td>
+                    <td>{{ alert.is_read|yesno:"Yes,No" }}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="info-card">
+            <h4>Sensor Information</h4>
+            <table class="info-table">
+                <tr>
+                    <td><strong>Device ID:</strong></td>
+                    <td>{{ alert.sensor.device_id }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Location:</strong></td>
+                    <td>{{ alert.sensor.location }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Type:</strong></td>
+                    <td>{{ alert.sensor.get_sensor_type_display }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Deployment:</strong></td>
+                    <td>{{ alert.sensor.get_deployment_type_display }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h3>Alert Message</h3>
+        <div class="message-box">
+            <p>{{ alert.message }}</p>
+        </div>
+    </div>
+    
+    {% if alert.leak %}
+    <div class="section">
+        <h3>Associated Leak Detection</h3>
+        <div class="info-card">
+            <table class="info-table">
+                <tr>
+                    <td><strong>Leak ID:</strong></td>
+                    <td>#{{ alert.leak.id }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Severity:</strong></td>
+                    <td><span class="badge badge-{{ alert.leak.severity|lower }}">{{ alert.leak.severity }}</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Loss Rate:</strong></td>
+                    <td>{{ alert.leak.estimated_loss_rate|floatformat:1 }} L/hr</td>
+                </tr>
+                <tr>
+                    <td><strong>Confidence:</strong></td>
+                    <td>{{ alert.leak.confidence_score|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Status:</strong></td>
+                    <td>{{ alert.leak.get_status_display }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="actions">
+        <a href="{% url 'sensors:sensor_detail' alert.sensor.device_id %}" class="btn btn-primary">View Sensor Details</a>
+        {% if not alert.is_resolved %}
+            <a href="{% url 'alerts:mark_resolved' alert.id %}" class="btn btn-success">Mark as Resolved</a>
+        {% endif %}
+        <a href="{% url 'alerts:alerts_list' %}" class="btn btn-secondary">Back to Alerts</a>
+    </div>
+</div>
+{% endblock %}

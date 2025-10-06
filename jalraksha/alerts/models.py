@@ -1,5 +1,5 @@
 from django.db import models
-from sensors.models import SensorDevice, WaterConsumptionZone
+from sensors.models import SensorDevice
 from analytics.models import LeakDetection
 
 class Alert(models.Model):

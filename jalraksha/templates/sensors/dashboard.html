@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - JalRaksha{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Water Management Dashboard</h2>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"></div>
+            <div class="stat-info">
+                <h3>{{ total_sensors }}</h3>
+                <p>Total Sensors</p>
+            </div>
+        </div>
+        
+        <div class="stat-card active">
+            <div class="stat-icon"></div>
+            <div class="stat-info">
+                <h3>{{ active_sensors }}</h3>
+                <p>Active Sensors</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon"></div>
+            <div class="stat-info">
+                <h3>{{ recent_readings|length }}</h3>
+                <p>Recent Readings</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon"></div>
+            <div class="stat-info">
+                <h3>Monitor</h3>
+                <p>Real-time Data</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h3>All Sensors</h3>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Device ID</th>
+                        <th>Type</th>
+                        <th>Location</th>
+                        <th>Deployment</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sensor in sensors %}
+                    <tr>
+                        <td><strong>{{ sensor.device_id }}</strong></td>
+                        <td>{{ sensor.get_sensor_type_display }}</td>
+                        <td>{{ sensor.location }}</td>
+                        <td><span class="badge badge-{{ sensor.deployment_type|lower }}">{{ sensor.get_deployment_type_display }}</span></td>
+                        <td>
+                            {% if sensor.is_active %}
+                                <span class="status-active">Active</span>
+                            {% else %}
+                                <span class="status-inactive">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'sensors:sensor_detail' sensor.device_id %}" class="btn btn-sm">View Details</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No sensors found. Please add sensors from admin panel.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h3>Recent Sensor Readings</h3>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Sensor</th>
+                        <th>Location</th>
+                        <th>Flow Rate (L/min)</th>
+                        <th>Pressure (PSI)</th>
+                        <th>Temperature (°C)</th>
+                        <th>Battery</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reading in recent_readings %}
+                    <tr>
+                        <td><strong>{{ reading.sensor.device_id }}</strong></td>
+                        <td>{{ reading.sensor.location }}</td>
+                        <td>{{ reading.flow_rate|floatformat:2 }}</td>
+                        <td>{{ reading.pressure|floatformat:2 }}</td>
+                        <td>{{ reading.temperature|floatformat:1 }}</td>
+                        <td>
+                            <span class="battery {% if reading.battery_level < 20 %}battery-low{% endif %}">
+                                {{ reading.battery_level }}%
+                            </span>
+                        </td>
+                        <td>{{ reading.timestamp|date:"H:i:s" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No readings available yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

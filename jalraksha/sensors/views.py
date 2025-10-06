@@ -1,46 +1,57 @@
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.db.models import Avg, Max, Min, Count
 from django.utils import timezone
 from datetime import timedelta
-from .models import SensorDevice, SensorReading
-from .serializers import SensorDeviceSerializer, SensorReadingSerializer, SensorReadingCreateSerializer
+from .models import SensorDevice, SensorReading, WaterConsumptionZone
 
-class SensorDeviceViewSet(viewsets.ModelViewSet):
-    queryset = SensorDevice.objects.all()
-    serializer_class = SensorDeviceSerializer
+def dashboard(request):
+    total_sensors = SensorDevice.objects.count()
+    active_sensors = SensorDevice.objects.filter(is_active=True).count()
     
-    @action(detail=True, methods=['get'])
-    def recent_readings(self, request, pk=None):
-        sensor = self.get_object()
-        hours = int(request.query_params.get('hours', 24))
-        since = timezone.now() - timedelta(hours=hours)
-        readings = sensor.readings.filter(timestamp__gte=since)
-        serializer = SensorReadingSerializer(readings, many=True)
-        return Response(serializer.data)
+    # Recent readings
+    recent_readings = SensorReading.objects.select_related('sensor').all()[:10]
     
-    @action(detail=False, methods=['get'])
-    def active_sensors(self, request):
-        active = self.queryset.filter(is_active=True)
-        serializer = self.get_serializer(active, many=True)
-        return Response(serializer.data)
+    # Get all sensors with latest reading
+    sensors = SensorDevice.objects.all()
+    
+    context = {
+        'total_sensors': total_sensors,
+        'active_sensors': active_sensors,
+        'recent_readings': recent_readings,
+        'sensors': sensors,
+    }
+    return render(request, 'sensors/dashboard.html', context)
 
-class SensorReadingViewSet(viewsets.ModelViewSet):
-    queryset = SensorReading.objects.all()
+def sensor_list(request):
+    sensors = SensorDevice.objects.all()
+    context = {'sensors': sensors}
+    return render(request, 'sensors/sensor_list.html', context)
+
+def sensor_detail(request, device_id):
+    sensor = get_object_or_404(SensorDevice, device_id=device_id)
     
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return SensorReadingCreateSerializer
-        return SensorReadingSerializer
+    # Get readings from last 24 hours
+    since = timezone.now() - timedelta(hours=24)
+    readings = sensor.readings.filter(timestamp__gte=since)
     
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        
-        # Trigger anomaly detection asynchronously
-        from analytics.tasks import analyze_sensor_reading
-        reading_id = serializer.instance.id
-        analyze_sensor_reading.delay(reading_id)
-        
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # Statistics
+    stats = readings.aggregate(
+        avg_flow=Avg('flow_rate'),
+        max_flow=Max('flow_rate'),
+        min_flow=Min('flow_rate'),
+        avg_pressure=Avg('pressure'),
+        total_readings=Count('id')
+    )
+    
+    context = {
+        'sensor': sensor,
+        'readings': readings[:50],
+        'stats': stats,
+    }
+    return render(request, 'sensors/sensor_detail.html', context)
+
+def zones_list(request):
+    zones = WaterConsumptionZone.objects.all()
+    context = {'zones': zones}
+    return render(request, 'sensors/zones_list.html', context)

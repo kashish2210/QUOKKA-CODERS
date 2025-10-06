@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Alerts - JalRaksha{% endblock %}
+
+{% block content %}
+<div class="alerts-page">
+    <div class="page-header">
+        <h2>System Alerts</h2>
+        <div class="alert-stats">
+            <span class="alert-count unread">{{ unread_count }} Unread</span>
+            <span class="alert-count unresolved">{{ unresolved_count }} Unresolved</span>
+        </div>
+    </div>
+    
+    <div class="filters">
+        <a href="?type=all" class="filter-btn {% if filter_type == 'all' %}active{% endif %}">All Alerts</a>
+        <a href="?type=unread" class="filter-btn {% if filter_type == 'unread' %}active{% endif %}">Unread</a>
+        <a href="?type=unresolved" class="filter-btn {% if filter_type == 'unresolved' %}active{% endif %}">Unresolved</a>
+    </div>
+    
+    <div class="alerts-container">
+        {% for alert in alerts %}
+        <div class="alert-card {% if not alert.is_read %}unread{% endif %} priority-{{ alert.priority|lower }}">
+            <div class="alert-header">
+                <div class="alert-type">
+                    <span class="alert-icon">
+                        {% if alert.alert_type == 'LEAK' %}
+                        {% elif alert.alert_type == 'CONTINUOUS_FLOW' %}
+                        {% elif alert.alert_type == 'HIGH_CONSUMPTION' %}
+                        {% elif alert.alert_type == 'SENSOR_OFFLINE' %}
+                        {% elif alert.alert_type == 'LOW_PRESSURE' %}⬇
+                        {% endif %}
+                    </span>
+                    <strong>{{ alert.get_alert_type_display }}</strong>
+                </div>
+                <div class="alert-badges">
+                    <span class="badge badge-{{ alert.priority|lower }}">{{ alert.priority }}</span>
+                    {% if not alert.is_read %}
+                        <span class="badge badge-new">New</span>
+                    {% endif %}
+                    {% if alert.is_resolved %}
+                        <span class="badge badge-success">Resolved</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="alert-body">
+                <p class="alert-message">{{ alert.message }}</p>
+                <div class="alert-meta">
+                    <span><strong>Sensor:</strong> {{ alert.sensor.device_id }}</span>
+                    <span><strong>Location:</strong> {{ alert.sensor.location }}</span>
+                    <span><strong>Time:</strong> {{ alert.created_at|date:"d M Y, H:i" }}</span>
+                </div>
+            </div>
+            
+            <div class="alert-actions">
+                <a href="{% url 'alerts:alert_detail' alert.id %}" class="btn btn-sm">View Details</a>
+                {% if not alert.is_resolved %}
+                    <a href="{% url 'alerts:mark_resolved' alert.id %}" class="btn btn-sm btn-success">Mark Resolved</a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <p>No alerts found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -7,6 +7,8 @@ class SensorDeviceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class SensorReadingSerializer(serializers.ModelSerializer):
+    sensor_location = serializers.CharField(source='sensor.location', read_only=True)
+    
     class Meta:
         model = SensorReading
         fields = '__all__'

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Sensors - JalRaksha{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>All Sensors</h2>
+    <a href="/admin/sensors/sensordevice/add/" class="btn btn-primary">+ Add New Sensor</a>
+</div>
+
+<div class="sensors-grid">
+    {% for sensor in sensors %}
+    <div class="sensor-card">
+        <div class="sensor-header">
+            <h3>{{ sensor.device_id }}</h3>
+            <span class="badge badge-{{ sensor.deployment_type|lower }}">
+                {{ sensor.get_deployment_type_display }}
+            </span>
+        </div>
+        <div class="sensor-body">
+            <p><strong>Type:</strong> {{ sensor.get_sensor_type_display }}</p>
+            <p><strong>Location:</strong> {{ sensor.location }}</p>
+            <p><strong>Installed:</strong> {{ sensor.installation_date|date:"d M Y" }}</p>
+            <p>
+                <strong>Status:</strong> 
+                {% if sensor.is_active %}
+                    <span class="status-active">Active</span>
+                {% else %}
+                    <span class="status-inactive">Inactive</span>
+                {% endif %}
+            </p>
+        </div>
+        <div class="sensor-footer">
+            <a href="{% url 'sensors:sensor_detail' sensor.device_id %}" class="btn btn-sm">View Details</a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <p>No sensors found. Add sensors from the admin panel.</p>
+        <a href="/admin/sensors/sensordevice/add/" class="btn btn-primary">Add First Sensor</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

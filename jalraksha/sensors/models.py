@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 
 class SensorDevice(models.Model):
     SENSOR_TYPES = [
@@ -15,8 +14,8 @@ class SensorDevice(models.Model):
     sensor_type = models.CharField(max_length=20, choices=SENSOR_TYPES)
     deployment_type = models.CharField(max_length=20, choices=DEPLOYMENT_TYPES)
     location = models.CharField(max_length=255)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     installation_date = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     last_maintenance = models.DateTimeField(null=True, blank=True)

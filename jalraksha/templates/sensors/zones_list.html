@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Water Zones - JalRaksha{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Water Consumption Zones</h2>
+    <a href="/admin/sensors/waterconsumptionzone/add/" class="btn btn-primary">+ Add New Zone</a>
+</div>
+
+<div class="zones-list">
+    {% for zone in zones %}
+    <div class="zone-card">
+        <h3>{{ zone.name }}</h3>
+        <p><strong>Type:</strong> {{ zone.zone_type }}</p>
+        <p><strong>Contact:</strong> {{ zone.contact_person }}</p>
+        <p><strong>Email:</strong> {{ zone.contact_email }}</p>
+        <p><strong>Phone:</strong> {{ zone.contact_phone }}</p>
+        <p><strong>Sensors:</strong> {{ zone.sensors.count }}</p>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <p>No zones configured yet.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

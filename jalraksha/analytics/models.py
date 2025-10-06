@@ -42,3 +42,6 @@ class ConsumptionPattern(models.Model):
     class Meta:
         unique_together = ['sensor', 'date']
         ordering = ['-date']
+    
+    def __str__(self):
+        return f"{self.sensor.device_id} - {self.date}"

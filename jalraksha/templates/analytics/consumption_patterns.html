@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Consumption Patterns - JalRaksha{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Water Consumption Patterns</h2>
+</div>
+
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Sensor ID</th>
+                <th>Location</th>
+                <th>Date</th>
+                <th>Total Consumption (L)</th>
+                <th>Peak Hour</th>
+                <th>Continuous Flow</th>
+                <th>Anomaly Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pattern in patterns %}
+            <tr>
+                <td><strong>{{ pattern.sensor.device_id }}</strong></td>
+                <td>{{ pattern.sensor.location }}</td>
+                <td>{{ pattern.date|date:"d M Y" }}</td>
+                <td>{{ pattern.total_consumption|floatformat:1 }}</td>
+                <td>{{ pattern.peak_hour }}:00</td>
+                <td>
+                    {% if pattern.continuous_flow_detected %}
+                        <span class="badge badge-danger">Yes</span>
+                    {% else %}
+                        <span class="badge badge-success">No</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="anomaly-score {% if pattern.anomaly_score > 0.7 %}high{% elif pattern.anomaly_score > 0.4 %}medium{% else %}low{% endif %}">
+                        {{ pattern.anomaly_score|floatformat:2 }}
+                    </span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">No consumption patterns available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
