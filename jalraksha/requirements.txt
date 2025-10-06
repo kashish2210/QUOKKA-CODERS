@@ -1,0 +1,12 @@
+django 
+djangorestframework 
+psycopg2-binary 
+celery 
+redis 
+pandas 
+numpy 
+scikit-learn 
+whitenoise==6.6.0
+gunicorn==21.2.0
+dj-database-url
+# tensorflow
