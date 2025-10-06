@@ -3,6 +3,39 @@
 {% block title %}{{ sensor.device_id }} - JalRaksha{% endblock %}
 
 {% block content %}
+<style>
+/* Hide footer */
+.footer {
+    display: none !important;
+}
+
+/* Hide all terminal-related elements */
+.terminal-overlay {
+    display: none !important;
+}
+
+.terminal-buttons {
+    display: none !important;
+}
+
+.terminal-button {
+    display: none !important;
+}
+
+/* Hide terminal container if it exists */
+.terminal-container {
+    display: none !important;
+}
+
+/* Hide any floating/fixed terminal buttons */
+.btn-terminal,
+.terminal-toggle,
+.terminal-fab,
+button[class*="terminal"] {
+    display: none !important;
+}
+</style>
+
 <div class="sensor-detail">
     <div class="breadcrumb">
         <a href="{% url 'sensors:dashboard' %}">Dashboard</a> / 

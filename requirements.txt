@@ -6,4 +6,6 @@ redis
 pandas 
 numpy 
 scikit-learn 
-tensorflow
+whitenoise==6.6.0
+gunicorn==21.2.0
+# tensorflow
