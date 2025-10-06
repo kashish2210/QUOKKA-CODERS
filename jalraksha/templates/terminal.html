@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal - JalRaksha Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        nav h1 {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .terminal-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .terminal {
+            background: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            background: #323232;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .btn-close { background: #ff5f56; }
+        .btn-minimize { background: #ffbd2e; }
+        .btn-maximize { background: #27c93f; }
+
+        .terminal-title {
+            color: #c5c5c5;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+
+        .terminal-body {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            color: #00ff00;
+            background: #1e1e1e;
+        }
+
+        .terminal-output {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .terminal-prompt {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .command-success {
+            color: #00ff00;
+        }
+
+        .command-error {
+            color: #ff6b6b;
+        }
+
+        .command-info {
+            color: #4dabf7;
+        }
+
+        .footer {
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            padding: 2rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3, .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .footer-section p, .footer-section ul {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .small {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .welcome-text {
+            color: #4dabf7;
+            margin-bottom: 1rem;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>🌊 JalRaksha Terminal Control</h1>
+    </nav>
+
+    <div class="terminal-container">
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-button btn-close"></div>
+                <div class="terminal-button btn-minimize"></div>
+                <div class="terminal-button btn-maximize"></div>
+                <span class="terminal-title">jalraksha@terminal: ~/simulation-control</span>
+            </div>
+            <div class="terminal-body" id="terminalBody">
+                <div class="welcome-text">JalRaksha Sensor Simulation Control Terminal v1.0
+Type 'help' for available commands.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+</div>
+                <div class="terminal-input-line">
+                    <span class="terminal-prompt">jalraksha@terminal:~$</span>
+                    <input type="text" class="terminal-input" id="terminalInput" autofocus>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>JalRaksha</h3>
+                    <p>Conserving water, one drop at a time.</p>
+                    <p class="small">Team: Quokka Coders</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/">Dashboard</a></li>
+                        <li><a href="/sensors/">Sensors</a></li>
+                        <li><a href="/analytics/leaks/">Leaks</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>Email: info@jalraksha.in</p>
+                    <p>Phone: +91 1234567890</p>
+                    <p>Location: Ahmedabad, Gujarat</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 JalRaksha. All rights reserved. | Built for NavonMesh Hackathon</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const terminalBody = document.getElementById('terminalBody');
+        const terminalInput = document.getElementById('terminalInput');
+        let isStreaming = false;
+        let streamingInterval = null;
+
+        terminalInput.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                const command = terminalInput.value.trim();
+                
+                if (command) {
+                    // Display the command
+                    addOutput(`jalraksha@terminal:~$ ${command}`, 'command-info');
+                    
+                    // Check if it's a clear command
+                    if (command === 'clear') {
+                        clearTerminal();
+                        terminalInput.value = '';
+                        return;
+                    }
+                    
+                    // Execute the command
+                    await executeCommand(command);
+                }
+                
+                terminalInput.value = '';
+            }
+        });
+
+        function addOutput(text, className = '') {
+            const output = document.createElement('div');
+            output.className = `terminal-output ${className}`;
+            output.textContent = text;
+            
+            const inputLine = document.querySelector('.terminal-input-line');
+            terminalBody.insertBefore(output, inputLine);
+            
+            // Scroll to bottom
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+
+        function clearTerminal() {
+            const outputs = terminalBody.querySelectorAll('.terminal-output');
+            outputs.forEach(output => output.remove());
+        }
+
+        async function executeCommand(command) {
+            try {
+                const response = await fetch('/terminal/execute/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ command: command })
+                });
+
+                const data = await response.json();
+                
+                if (data.clear) {
+                    clearTerminal();
+                } else {
+                    const className = data.success ? 'command-success' : 'command-error';
+                    addOutput(data.output, className);
+                    
+                    // Start streaming if simulation started
+                    if (data.streaming && data.success) {
+                        startStreaming();
+                    }
+                }
+            } catch (error) {
+                addOutput(`Error: ${error.message}`, 'command-error');
+            }
+        }
+
+        function startStreaming() {
+            if (isStreaming) return;
+            
+            isStreaming = true;
+            streamingInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/terminal/output/');
+                    const data = await response.json();
+                    
+                    if (data.output && data.output.trim()) {
+                        addOutput(data.output, 'command-success');
+                    }
+                    
+                    if (!data.is_running) {
+                        stopStreaming();
+                    }
+                } catch (error) {
+                    console.error('Streaming error:', error);
+                }
+            }, 500); // Poll every 0.5 seconds for faster updates
+        }
+
+        function stopStreaming() {
+            if (streamingInterval) {
+                clearInterval(streamingInterval);
+                streamingInterval = null;
+            }
+            isStreaming = false;
+        }
+
+        // Auto-focus input when clicking anywhere in terminal
+        terminalBody.addEventListener('click', () => {
+            terminalInput.focus();
+        });
+
+        // Initial focus
+        terminalInput.focus();
+    </script>
+</body>
+</html>

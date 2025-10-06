@@ -1,3 +1,256 @@
+<!-- Add this to your base template footer -->
+<style>
+    .footer-container {
+        position: relative;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .footer-container.terminal-active {
+        margin-bottom: 0;
+    }
+
+    .footer-toggle-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 50px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s;
+        z-index: 1001;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .footer-toggle-btn:hover {
+        background: rgba(0, 0, 0, 0.95);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .footer {
+        background: rgba(0, 0, 0, 0.3);
+        color: white;
+        padding: 2rem 0;
+        backdrop-filter: blur(10px);
+        transition: opacity 0.3s;
+        margin-top: 4rem;
+    }
+
+    .terminal-overlay {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60vh;
+        background: #1e1e1e;
+        z-index: 1000;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    .terminal-overlay.active {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .terminal-header {
+        background: #323232;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .terminal-buttons {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .terminal-button {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .terminal-button:hover {
+        opacity: 0.8;
+    }
+
+    .btn-close { background: #ff5f56; }
+    .btn-minimize { background: #ffbd2e; }
+    .btn-maximize { background: #27c93f; }
+
+    .terminal-title {
+        color: #c5c5c5;
+        font-size: 0.9rem;
+        font-family: 'Courier New', monospace;
+    }
+
+    .terminal-status {
+        color: #4dabf7;
+        font-size: 0.85rem;
+        font-family: 'Courier New', monospace;
+    }
+
+    .terminal-body {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        color: #00ff00;
+        background: #1e1e1e;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+    }
+
+    .terminal-output {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .terminal-input-line {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .terminal-prompt {
+        color: #00ff00;
+        font-weight: bold;
+    }
+
+    .terminal-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: #00ff00;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .command-success { color: #00ff00; }
+    .command-error { color: #ff6b6b; }
+    .command-info { color: #4dabf7; }
+    .command-warning { color: #ffd43b; }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .footer-section h3, .footer-section h4 {
+        margin-bottom: 1rem;
+        color: #fff;
+    }
+
+    .footer-section p, .footer-section ul {
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+    }
+
+    .footer-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .footer-section ul li {
+        margin-bottom: 0.5rem;
+    }
+
+    .footer-section a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .footer-section a:hover {
+        color: #fff;
+    }
+
+    .footer-bottom {
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .small {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .welcome-text {
+        color: #4dabf7;
+        margin-bottom: 1rem;
+    }
+
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #1e1e1e;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #555;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #777;
+    }
+
+    .dots-icon {
+        display: inline-flex;
+        gap: 3px;
+    }
+
+    .dot {
+        width: 4px;
+        height: 4px;
+        background: white;
+        border-radius: 50%;
+    }
+
+    .terminal-icon {
+        font-size: 16px;
+    }
+</style>
+
+<!-- Regular Footer (Always at page end) -->
 <footer class="footer">
     <div class="container">
         <div class="footer-content">
@@ -9,9 +262,9 @@
             <div class="footer-section">
                 <h4>Quick Links</h4>
                 <ul>
-                    <li><a href="{% url 'sensors:dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'sensors:sensor_list' %}">Sensors</a></li>
-                    <li><a href="{% url 'analytics:leak_list' %}">Leaks</a></li>
+                    <li><a href="/dashboard/">Dashboard</a></li>
+                    <li><a href="/sensors/">Sensors</a></li>
+                    <li><a href="/analytics/leaks/">Leaks</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -26,3 +279,282 @@
         </div>
     </div>
 </footer>
+
+<!-- Floating Toggle Button -->
+<button class="footer-toggle-btn" id="toggleBtn">
+    <span class="terminal-icon">⌘</span>
+    <span id="toggleText">Terminal</span>
+</button>
+
+<!-- Terminal Overlay (Fixed at bottom) -->
+<div class="terminal-overlay" id="terminalOverlay">
+    <div class="terminal-header">
+        <div class="terminal-buttons">
+            <div class="terminal-button btn-close" id="closeTerminal"></div>
+            <div class="terminal-button btn-minimize"></div>
+            <div class="terminal-button btn-maximize"></div>
+        </div>
+        <span class="terminal-title">jalraksha@terminal: ~/simulation-control</span>
+        <span class="terminal-status" id="terminalStatus"></span>
+    </div>
+    <div class="terminal-body" id="terminalBody">
+        <div class="welcome-text">JalRaksha Sensor Simulation Control Terminal v1.0
+Type 'help' for available commands.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+</div>
+        <div class="terminal-input-line">
+            <span class="terminal-prompt">jalraksha@terminal:~$</span>
+            <input type="text" class="terminal-input" id="terminalInput" autofocus>
+        </div>
+    </div>
+</div>
+
+<script>
+    const toggleBtn = document.getElementById('toggleBtn');
+    const toggleText = document.getElementById('toggleText');
+    const closeTerminal = document.getElementById('closeTerminal');
+    const terminalOverlay = document.getElementById('terminalOverlay');
+    const terminalBody = document.getElementById('terminalBody');
+    const terminalInput = document.getElementById('terminalInput');
+    const terminalStatus = document.getElementById('terminalStatus');
+    
+    let isStreaming = false;
+    let streamingInterval = null;
+    let autoShutdownTimer = null;
+
+    // Toggle terminal
+    toggleBtn.addEventListener('click', () => {
+        if (terminalOverlay.classList.contains('active')) {
+            closeTerminalView();
+        } else {
+            openTerminalView();
+        }
+    });
+
+    // Close terminal (red button) - DON'T stop simulation
+    closeTerminal.addEventListener('click', () => {
+        closeTerminalView();
+    });
+
+    function openTerminalView() {
+        terminalOverlay.classList.add('active');
+        toggleText.textContent = 'Close Terminal';
+        terminalInput.focus();
+        // Resume streaming if simulation is running
+        checkAndResumeStreaming();
+    }
+
+    function closeTerminalView() {
+        terminalOverlay.classList.remove('active');
+        toggleText.textContent = 'Terminal';
+        // DON'T stop streaming - let it run in background
+    }
+
+    // Auto-detect correct URL base
+    const TERMINAL_BASE = window.TERMINAL_URL_BASE || '/terminal/';
+    
+    async function checkAndResumeStreaming() {
+        try {
+            const response = await fetch(TERMINAL_BASE + 'output/');
+            const data = await response.json();
+            if (data.is_running && !isStreaming) {
+                startStreaming();
+                updateStatus('RUNNING');
+            }
+        } catch (error) {
+            console.error('Error checking simulation status:', error);
+        }
+    }
+
+    // Terminal functionality
+    terminalInput.addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter') {
+            const command = terminalInput.value.trim();
+            
+            if (command) {
+                addOutput(`jalraksha@terminal:~$ ${command}`, 'command-info');
+                
+                if (command === 'clear') {
+                    clearTerminal();
+                    terminalInput.value = '';
+                    return;
+                }
+                
+                await executeCommand(command);
+            }
+            
+            terminalInput.value = '';
+        }
+    });
+
+    function addOutput(text, className = '') {
+        const output = document.createElement('div');
+        output.className = `terminal-output ${className}`;
+        output.textContent = text;
+        
+        const inputLine = document.querySelector('.terminal-input-line');
+        terminalBody.insertBefore(output, inputLine);
+        
+        terminalBody.scrollTop = terminalBody.scrollHeight;
+    }
+
+    function clearTerminal() {
+        const outputs = terminalBody.querySelectorAll('.terminal-output');
+        outputs.forEach(output => output.remove());
+    }
+
+    async function executeCommand(command) {
+        try {
+            const response = await fetch('terminal/execute/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ command: command })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.clear) {
+                clearTerminal();
+            } else {
+                const className = data.success ? 'command-success' : 'command-error';
+                addOutput(data.output, className);
+                
+                if (data.streaming && data.success) {
+                    startStreaming();
+                    startAutoShutdown();
+                    updateStatus('RUNNING');
+                } else if (command === 'stop simulation' && data.success) {
+                    stopStreaming();
+                    cancelAutoShutdown();
+                    updateStatus('STOPPED');
+                }
+            }
+        } catch (error) {
+            addOutput(`Error: ${error.message}`, 'command-error');
+        }
+    }
+
+    function startStreaming() {
+        if (isStreaming) return;
+        
+        isStreaming = true;
+        streamingInterval = setInterval(async () => {
+            try {
+                const response = await fetch('terminal/output/');
+                
+                if (!response.ok) {
+                    console.error('Streaming error: HTTP', response.status);
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.output && data.output.trim()) {
+                    // Only add output if terminal is visible
+                    if (terminalOverlay.classList.contains('active')) {
+                        addOutput(data.output, 'command-success');
+                    }
+                }
+                
+                if (!data.is_running) {
+                    stopStreaming();
+                    updateStatus('STOPPED');
+                    addOutput('\n⚠ Simulation ended', 'command-warning');
+                }
+            } catch (error) {
+                console.error('Streaming error:', error);
+            }
+        }, 500);
+    }
+
+    function stopStreaming() {
+        if (streamingInterval) {
+            clearInterval(streamingInterval);
+            streamingInterval = null;
+        }
+        isStreaming = false;
+    }
+
+    function startAutoShutdown() {
+        // Cancel any existing timer
+        cancelAutoShutdown();
+        
+        // Set 2 minute (120 seconds) auto-shutdown
+        autoShutdownTimer = setTimeout(async () => {
+            addOutput('\n⏰ Auto-shutdown: 2 minutes elapsed, stopping simulation...', 'command-warning');
+            
+            // Execute stop command
+            try {
+                const response = await fetch('terminal/execute/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ command: 'stop simulation' })
+                });
+                
+                const data = await response.json();
+                addOutput(data.output, data.success ? 'command-success' : 'command-error');
+                
+                stopStreaming();
+                updateStatus('STOPPED');
+            } catch (error) {
+                addOutput(`Auto-shutdown error: ${error.message}`, 'command-error');
+            }
+        }, 120000); // 120000ms = 2 minutes
+        
+        addOutput('ℹ Auto-shutdown enabled: Simulation will stop after 2 minutes', 'command-info');
+    }
+
+    function cancelAutoShutdown() {
+        if (autoShutdownTimer) {
+            clearTimeout(autoShutdownTimer);
+            autoShutdownTimer = null;
+        }
+    }
+
+    function updateStatus(status) {
+        if (status === 'RUNNING') {
+            terminalStatus.textContent = '● RUNNING';
+            terminalStatus.style.color = '#00ff00';
+        } else {
+            terminalStatus.textContent = '● STOPPED';
+            terminalStatus.style.color = '#ff6b6b';
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    terminalBody.addEventListener('click', () => {
+        if (terminalOverlay.classList.contains('active')) {
+            terminalInput.focus();
+        }
+    });
+
+    // Check simulation status on page load
+    window.addEventListener('load', () => {
+        setTimeout(checkAndResumeStreaming, 500);
+    });
+</script>

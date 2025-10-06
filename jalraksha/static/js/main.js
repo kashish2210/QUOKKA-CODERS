@@ -354,7 +354,7 @@ function fetchLatestSensorData() {
     const timeRange = document.getElementById('timeRange')?.value || '24h';
     const sensor = document.getElementById('sensorFilter')?.value || 'all';
     
-    fetch(`/analytics/advanced/?range=${timeRange}&sensor=${sensor}`, {
+    fetch(`/analytics/?range=${timeRange}&sensor=${sensor}`, {
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
         }
