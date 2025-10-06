@@ -1,0 +1,9 @@
+django 
+djangorestframework 
+psycopg2-binary 
+celery 
+redis 
+pandas 
+numpy 
+scikit-learn 
+tensorflow
