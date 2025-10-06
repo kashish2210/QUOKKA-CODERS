@@ -1,6 +1,9 @@
 # JalRaksha - AI-Driven Water Conservation Platform
 
 Django-based water management system with IoT sensor monitoring and AI-powered leak detection.
+#### deployed on [render](https://quokka-coders.onrender.com/)
+
+#### YouTube explanation [link](https://youtu.be/hvetvicXZLk)
 
 ## Prerequisites
 
