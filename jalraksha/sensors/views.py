@@ -56,11 +56,12 @@ def zones_list(request):
     context = {'zones': zones}
     return render(request, 'sensors/zones_list.html', context)
 
-## teerminal:
 
-from django.shortcuts import render
+## TERMINAL VIEWS ##
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import get_user_model
 import subprocess
 import os
 import json
@@ -90,14 +91,42 @@ def execute_command(request):
             return stop_simulation()
         elif command == 'status':
             return check_status()
+        elif command.startswith('create superuser'):
+            # Parse command: create superuser <username> <email> <password>
+            parts = command.split()
+            if len(parts) == 5:
+                _, _, username, email, password = parts
+                return create_superuser_command(username, email, password)
+            else:
+                return JsonResponse({
+                    'output': '''Usage: create superuser <username> <email> <password>
+Example: create superuser admin admin@jalraksha.in admin123
+
+⚠️  WARNING: This is for testing only! Never use in production.''',
+                    'success': False
+                })
+        elif command == 'list users':
+            return list_users()
         elif command == 'help':
             return JsonResponse({
                 'output': """Available Commands:
-  start simulation  - Start the sensor simulation with live output
-  stop simulation   - Stop the sensor simulation
-  status           - Check simulation status
-  help             - Show this help message
-  clear            - Clear terminal screen""",
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SIMULATION:
+  start simulation         - Start the sensor simulation with live output
+  stop simulation          - Stop the sensor simulation
+  status                   - Check simulation status
+
+USER MANAGEMENT:
+  create superuser <user> <email> <pass>
+                          - Create admin superuser (TESTING ONLY!)
+  list users              - List all users in database
+
+SYSTEM:
+  help                    - Show this help message
+  clear                   - Clear terminal screen
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Example: create superuser admin admin@jalraksha.in admin123""",
                 'success': True
             })
         elif command == 'clear':
@@ -109,6 +138,84 @@ def execute_command(request):
             })
     
     return JsonResponse({'output': 'Invalid request', 'success': False})
+
+def create_superuser_command(username, email, password):
+    """Create a superuser from terminal - TESTING ONLY"""
+    try:
+        User = get_user_model()
+        
+        # Check if user already exists
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({
+                'output': f'❌ Error: User "{username}" already exists!\n\nUse "list users" to see all users.',
+                'success': False
+            })
+        
+        # Create superuser
+        user = User.objects.create_superuser(
+            username=username,
+            email=email,
+            password=password
+        )
+        
+        output = f"""✓ Superuser created successfully!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Username:  {username}
+Email:     {email}
+Password:  {password}
+Is Admin:  Yes
+Is Active: Yes
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You can now login at: /admin/
+
+⚠️  SECURITY WARNING: This command is for testing only!
+    Never use this in production. Change password immediately!"""
+        
+        return JsonResponse({
+            'output': output,
+            'success': True
+        })
+    except Exception as e:
+        return JsonResponse({
+            'output': f'❌ Error creating superuser: {str(e)}',
+            'success': False
+        })
+
+def list_users():
+    """List all users in the database"""
+    try:
+        User = get_user_model()
+        users = User.objects.all()
+        
+        if not users.exists():
+            return JsonResponse({
+                'output': '⚠️  No users found in database.\n\nUse "create superuser" to create an admin user.',
+                'success': True
+            })
+        
+        output = f"Total Users: {users.count()}\n"
+        output += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        
+        for user in users:
+            output += f"Username:   {user.username}\n"
+            output += f"Email:      {user.email or 'N/A'}\n"
+            output += f"Superuser:  {'Yes' if user.is_superuser else 'No'}\n"
+            output += f"Staff:      {'Yes' if user.is_staff else 'No'}\n"
+            output += f"Active:     {'Yes' if user.is_active else 'No'}\n"
+            output += f"Joined:     {user.date_joined.strftime('%Y-%m-%d %H:%M:%S')}\n"
+            output += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        
+        return JsonResponse({
+            'output': output,
+            'success': True
+        })
+    except Exception as e:
+        return JsonResponse({
+            'output': f'❌ Error listing users: {str(e)}',
+            'success': False
+        })
 
 def enqueue_output(pipe, queue):
     """Read output from pipe and put in queue"""
